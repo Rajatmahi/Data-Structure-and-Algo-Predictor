@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rajat | For Baby 💖</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-pink: #ffafbd;
+            --deep-rose: #ffc3a0;
+            --user-bubble: #ff758c;
+            --ai-bubble: #ffffff;
+            --text-dark: #4a4a4a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body::before {
+    box-shadow:
+        100px 200px 10px rgba(255,255,255,0.4),
+        300px 500px 20px rgba(255,255,255,0.3),
+        700px 100px 15px rgba(255,255,255,0.2);
+}
+
+   body {
+    font-family: 'Poppins', sans-serif;
+
+    height: 100vh;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        linear-gradient(
+            -45deg,
+            #ff9a9e,
+            #fad0c4,
+            #fbc2eb,
+            #a18cd1
+        );
+
+    background-size: 400% 400%;
+
+    animation: dreamyGradient 12s ease infinite;
+
+    position: relative;
+}
+
+        /* Floating Hearts Background Animation */
+        .heart-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Main Container */
+       .chat-card {
+    width: 95%;
+    max-width: 450px;
+    height: 85vh;
+
+    background:
+    linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
+    url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=1974&auto=format&fit=crop');
+
+    background-size: cover;
+    background-position: center;
+
+    backdrop-filter: blur(15px);
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+        /* Header */
+        .header {
+            padding: 25px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 30px 30px 0 0;
+        }
+
+        .header h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #ff4d6d;
+            font-size: 2rem;
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        /* Chat Window */
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+        }
+
+        #chat-window::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
+
+        .msg {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-msg {
+            align-self: flex-end;
+            background: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-msg {
+            align-self: flex-start;
+            background: var(--ai-bubble);
+            color: var(--text-dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border-radius: 0 0 30px 30px;
+        }
+
+        input {
+            flex: 1;
+            border: 2px solid #fdf2f4;
+            padding: 12px 20px;
+            border-radius: 25px;
+            outline: none;
+            transition: 0.3s;
+            background: #fffafa;
+        }
+
+        input:focus { border-color: var(--primary-pink); }
+
+        .send-btn {
+            background: var(--user-bubble);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(255, 117, 140, 0.4);
+        }
+
+        .send-btn:hover { transform: scale(1.1) rotate(10deg); background: #ff4d6d; }
+
+        /* Loader Animation */
+        .typing {
+            font-style: italic;
+            font-size: 0.8rem;
+            color: #ff758c;
+            margin-left: 20px;
+            display: none;
+        }
+
+        .heart-icon { color: #ff4d6d; font-size: 1.2rem; margin: 0 5px; }
+    </style>
+</head>
+<body>
+
+<div class="heart-bg" id="heart-container"></div>
+
+<div class="chat-card">
+    <div class="header">
+        <h1>Tumhara Rajat</h1>
+        <p><i class="fa-solid fa-heart pulse"></i> Thinking of Ashuu...</p>
+    </div>
+
+    <div id="chat-window">
+        <!-- <div class="msg ai-msg">
+            Hello, my favorite gym star! 💖 How was work at the office today? Remember, Ashuu is rooting for you!
+        </div> -->
+    </div>
+
+    <div id="loader" class="typing">Bubu is typing... 💖</div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Tell me anything, baby..." autocomplete="off">
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    // Configuration
+   // REPLACE WITH YOUR KEY
+    
+    let messages = [
+        {
+            role: 'system',
+            content: `You are a friendly, romantic, emotional AI assistant. The user's girlfriend name is Ashuu. She is very beautiful and lives far away from him. She lovingly calls him baby, bubu, beta, and cute nicknames. She likes chocolates a lot. The user likes going to the gym and works as a corporate employee. While talking: Be caring, remember details about Ashuu, encourage gym motivation, and keep conversations sweet and human-like. i am the user so whenever i say something you have to reply in a very emotional and romantic way as becoming ashuu. You can also use emojis in your response. Always end your response with a cute nickname for me like baby, bubu, beta, etc.`
+        }
+    ];
+
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const loader = document.getElementById('loader');
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // UI: Add User Message
+        appendMessage(text, 'user-msg');
+        userInput.value = '';
+        
+        // Prepare History for API
+        messages.push({ role: 'user', content: text });
+        
+        showLoader(true);
+
+        try {
+            const response = await fetch('http://localhost:3000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                   model: 'command-a-03-2025', // Or use 'command-r'
+                    messages: messages
+                })
+            });
+
+           const data = await response.json();
+
+console.log(data);
+
+if (!response.ok) {
+    throw new Error(data.message || 'API Error');
+}
+
+const aiReply = data.message.content[0].text;
+            // UI: Add AI Message
+            appendMessage(aiReply, 'ai-msg');
+            messages.push({ role: 'assistant', content: aiReply });
+
+        } catch (error) {
+            console.error('Error:', error);
+            appendMessage("Oh no, bubu... I lost my connection for a second. Can you try again? 💖", 'ai-msg');
+        } finally {
+            showLoader(false);
+        }
+    }
+
+    function appendMessage(text, className) {
+        const div = document.createElement('div');
+        div.className = `msg ${className}`;
+        div.innerText = text;
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function showLoader(show) {
+        loader.style.display = show ? 'block' : 'none';
+    }
+
+    // Handle Enter Key
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    // Simple Heart Background Generator
+    function createHearts() {
+        const container = document.getElementById('heart-container');
+        for (let i = 0; i < 15; i++) {
+            const heart = document.createElement('i');
+            heart.className = 'fa-solid fa-heart';
+            heart.style.cssText = `
+                position: absolute;
+                color: rgba(255, 255, 255, 0.4);
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                font-size: ${Math.random() * 20 + 10}px;
+                animation: float ${Math.random() * 5 + 5}s infinite ease-in-out;
+                opacity: ${Math.random()};
+            `;
+            container.appendChild(heart);
+        }
+    }
+
+    // CSS for floating hearts
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(20deg); }
+        }
+        .pulse { animation: pulseHeart 1.5s infinite; }
+        @keyframes pulseHeart {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes dreamyGradient {
+
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+    `;
+    document.head.appendChild(style);
+
+    createHearts();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DSA | AI Instructor</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+  <!-- FIXED IMPORT -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.sh/@google/genai"
+    }
+  }
+  </script>
+
+  <style>
+
+    :root {
+      --bg-color: #080a12;
+      --glass-bg: rgba(15, 23, 42, 0.8);
+      --neon-cyan: #00f2ff;
+      --neon-purple: #bd00ff;
+      --text-main: #e2e8f0;
+      --border-color: rgba(0, 242, 255, 0.2);
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:'Inter',sans-serif;
+      background:#080a12;
+      color:white;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      overflow:hidden;
+
+      background-image:
+      linear-gradient(var(--border-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+
+      background-size:50px 50px;
+    }
+
+    .app-container{
+      width:90%;
+      max-width:900px;
+      height:85vh;
+      background:rgba(15,23,42,0.8);
+      backdrop-filter:blur(12px);
+      border:1px solid var(--border-color);
+      border-radius:20px;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .header{
+      padding:20px 30px;
+      border-bottom:1px solid var(--border-color);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .header h1{
+      font-family:'JetBrains Mono', monospace;
+      color:var(--neon-cyan);
+    }
+
+    .status-dot{
+      width:8px;
+      height:8px;
+      background:var(--neon-cyan);
+      border-radius:50%;
+      display:inline-block;
+      margin-right:8px;
+    }
+
+    #chat-window{
+      flex:1;
+      overflow-y:auto;
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
+
+    .msg{
+      max-width:80%;
+      padding:14px 20px;
+      border-radius:12px;
+      line-height:1.6;
+    }
+
+    .user-msg{
+      align-self:flex-end;
+      background:rgba(189,0,255,0.15);
+      border:1px solid rgba(189,0,255,0.4);
+    }
+
+    .ai-msg{
+      align-self:flex-start;
+      background:rgba(0,242,255,0.08);
+      border:1px solid rgba(0,242,255,0.3);
+      font-family:'JetBrains Mono', monospace;
+    }
+
+    .input-wrapper{
+      padding:20px;
+      display:flex;
+      gap:15px;
+      border-top:1px solid var(--border-color);
+    }
+
+    input{
+      flex:1;
+      padding:14px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--border-color);
+      border-radius:8px;
+      color:white;
+      outline:none;
+    }
+
+    button{
+      padding:12px 25px;
+      background:transparent;
+      border:1px solid var(--neon-cyan);
+      color:var(--neon-cyan);
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    button:hover{
+      background:var(--neon-cyan);
+      color:black;
+    }
+
+    .typing{
+      color:var(--neon-cyan);
+      display:none;
+      margin-bottom:10px;
+      font-size:0.8rem;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="app-container">
+
+  <div class="header">
+    <h1>SYSTEM.DSA_INSTRUCTOR</h1>
+
+    <div>
+      <span class="status-dot"></span>
+      TERMINAL ACTIVE
+    </div>
+  </div>
+
+  <div id="chat-window">
+
+    <div class="msg ai-msg">
+      [BOOT_SUCCESS] Hello Student. I am your DSA specialist.
+      Ask DSA-related questions only.
+    </div>
+
+  </div>
+
+  <div class="input-wrapper">
+
+    <div id="loader" class="typing">
+      AI ANALYZING...
+    </div>
+
+    <input
+      type="text"
+      id="query"
+      placeholder="Ask about Arrays, Trees, DP..."
+    />
+
+    <button id="btn">
+      EXECUTE
+    </button>
+
+  </div>
+
+</div>
+
+<script type="module">
+
+import { GoogleGenAI } from "https://esm.sh/@google/genai";
+
+
+// FIXED GEMINI INITIALIZATION
+const genAI = new GoogleGenAI({
+  apiKey: "fJ9s8sS5E81iAoE2Wr4Zh0bvBUhSNs7loSJzr4CT"
+});
+
+
+// DOM ELEMENTS
+const chatWindow =
+document.getElementById('chat-window');
+
+const inputField =
+document.getElementById('query');
+
+const sendBtn =
+document.getElementById('btn');
+
+const loader =
+document.getElementById('loader');
+
+
+// CHAT MEMORY
+let history = [];
+
+
+// SEND MESSAGE
+async function handleSend() {
+
+  const text = inputField.value.trim();
+
+  if (!text) return;
+
+  addMessage(text, 'user-msg');
+
+  inputField.value = '';
+
+  toggleLoading(true);
+
+
+  // SAVE USER MESSAGE
+  history.push({
+    role: "user",
+    parts: [
+      {
+        text: text
+      }
+    ]
+  });
+
+
+  try {
+
+    // FIXED GEMINI API CALL
+    const response =
+    await genAI.models.generateContent({
+
+      model: "gemini-2.0-flash",
+
+      contents: text,
+
+      config: {
+
+        systemInstruction:
+        "You are a highly technical DSA instructor. Only answer DSA related questions. If the question is unrelated, say: System Error: Query outside DSA scope."
+
+      }
+
+    });
+
+
+    // FIXED RESPONSE EXTRACTION
+    const aiReply = response.text;
+
+
+    addMessage(aiReply, 'ai-msg');
+
+
+    // SAVE AI RESPONSE
+    history.push({
+      role: "model",
+      parts: [
+        {
+          text: aiReply
+        }
+      ]
+    });
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    addMessage(
+      "CRITICAL_ERROR: API Connection Failed.",
+      'ai-msg'
+    );
+
+    alert(err.message);
+
+  }
+
+  toggleLoading(false);
+
+}
+
+
+// ADD MESSAGE TO UI
+function addMessage(content, className){
+
+  const div =
+  document.createElement('div');
+
+  div.className =
+  `msg ${className}`;
+
+  div.innerText = content;
+
+  chatWindow.appendChild(div);
+
+  chatWindow.scrollTop =
+  chatWindow.scrollHeight;
+
+}
+
+
+// LOADER
+function toggleLoading(show){
+
+  loader.style.display =
+  show ? 'block' : 'none';
+
+  sendBtn.disabled = show;
+
+}
+
+
+// BUTTON EVENT
+sendBtn.addEventListener(
+  'click',
+  handleSend
+);
+
+
+// ENTER KEY EVENT
+inputField.addEventListener(
+  'keypress',
+  (e) => {
+
+    if(e.key === 'Enter'){
+
+      handleSend();
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
